@@ -2,16 +2,18 @@ package canvas
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/draw"
+	"os/exec"
 	"strings"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
-	"github.com/Ladicle/tcardgen/pkg/canvas/box"
-	"github.com/Ladicle/tcardgen/pkg/canvas/fontfamily"
-	"github.com/Ladicle/tcardgen/pkg/config"
+	"github.com/zoncoen/tcardgen/pkg/canvas/box"
+	"github.com/zoncoen/tcardgen/pkg/canvas/fontfamily"
+	"github.com/zoncoen/tcardgen/pkg/config"
 )
 
 func CreateCanvasFromImage(tpl image.Image) (*Canvas, error) {
@@ -59,11 +61,14 @@ func (c *Canvas) DrawTextAtPoint(text string, start config.Point, opts ...textDr
 		return nil
 	}
 
-	c.drawMultiLineText(text)
-	return nil
+	return c.drawMultiLineText(text)
 }
 
-func (c *Canvas) drawMultiLineText(text string) {
+func (c *Canvas) drawMultiLineText(text string) error {
+	text, err := budoux(text)
+	if err != nil {
+		return err
+	}
 	var (
 		x      = c.fdr.Dot.X
 		rtext  = []rune(text)
@@ -71,22 +76,26 @@ func (c *Canvas) drawMultiLineText(text string) {
 
 		lbuf bytes.Buffer
 		wbuf bytes.Buffer
+		wbr  int // word break opportunity
+		swbr int // soft word break opportunity
 	)
 	for i := 0; i < length; i++ {
 		r := rtext[i]
+
+		if r == '\n' {
+			wbr = lbuf.Len()
+			continue
+		}
 
 		wbuf.WriteRune(r)
 
 		switch {
 		case spaceChar(r):
-			// noop
-		case oneByteChar(r) || startBracket(r):
-			if (i + 1) < length {
-				continue
-			}
+			swbr = lbuf.Len() + wbuf.Len()
 		case (i+1) < length && endChar(rtext[i+1]):
 			wbuf.WriteRune(rtext[i+1])
 			i++
+			swbr = lbuf.Len() + wbuf.Len()
 		}
 
 		lbuf.Write(wbuf.Bytes())
@@ -97,20 +106,37 @@ func (c *Canvas) drawMultiLineText(text string) {
 			if (i + 1) < length {
 				continue
 			}
+			wbr = lbuf.Len() // write all
 		}
 
-		c.fdr.DrawBytes(lbuf.Bytes()[:lbuf.Len()-wbuf.Len()])
+		pos := lbuf.Len() - wbuf.Len()
+		if wbr > 0 {
+			pos = wbr
+		} else if swbr > 0 {
+			pos = swbr
+		}
+		wbr = 0
+		swbr = 0
+
+		c.drawBytes(lbuf.Bytes()[:pos])
 		c.fdr.Dot.X = x
 		c.fdr.Dot.Y += c.fdr.Face.Metrics().Height + fixed.I(c.lineSpace)
 
+		remain := lbuf.Bytes()[pos:]
 		lbuf.Reset()
-		lbuf.Write(wbuf.Bytes())
+		lbuf.Write(remain)
 		wbuf.Reset()
 	}
 
 	if len(lbuf.Bytes()) != 0 {
-		c.fdr.DrawBytes(lbuf.Bytes()[:lbuf.Len()-wbuf.Len()])
+		c.drawBytes(lbuf.Bytes()[:lbuf.Len()-wbuf.Len()])
 	}
+
+	return nil
+}
+
+func (c *Canvas) drawBytes(b []byte) {
+	c.fdr.DrawString(strings.TrimSpace(string(b))) // trim heading spaces
 }
 
 func (c *Canvas) DrawBoxTexts(texts []string, start config.Point, opts ...textDrawOption) error {
@@ -247,4 +273,12 @@ func BoxAlign(align box.Align) textDrawOption {
 		c.boxAlign = align
 		return nil
 	}
+}
+
+func budoux(text string) (string, error) {
+	b, err := exec.Command("budoux", "-l", "ja", text).CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("budoux failed: %s: %w", string(b), err)
+	}
+	return strings.Trim(string(b), "\n"), nil
 }

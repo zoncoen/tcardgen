@@ -6,18 +6,30 @@ Also, both toml and yaml formats are supported.
 
 ![sample](./example/blog-post2.png)
 
-## Installation
+## Note
 
-### Go version < 1.16
+This is a forked repository from [Ladicle/tcardgen](https://github.com/Ladicle/tcardgen) to improve line breaks for Japanese with [BudouX](https://github.com/google/budoux). It contains other customizations for [my blog](https://blog.zoncoen.net/).
+
+This tool requires `budoux` command.
 
 ```bash
-go get github.com/Ladicle/tcardgen@latest
+npm install -g budoux
 ```
 
-### Go 1.16+
+### Diff
+
+|Original|My Version|
+|---|---|
+|![diff1-before](./example/diff1-before.png)|![diff1-after](./example/diff1-after.png)|
+|![diff2-before](./example/diff2-before.png)|![diff2-after](./example/diff2-after.png)|
+|![diff3-before](./example/diff3-before.png)|![diff3-after](./example/diff3-after.png)|
+|![diff4-before](./example/diff4-before.png)|![diff4-after](./example/diff4-after.png)|
+
+## Installation
 
 ```bash
-go install github.com/Ladicle/tcardgen@latest
+go install github.com/zoncoen/tcardgen@latest
+npm install -g budoux
 ```
 
 ## Getting Started

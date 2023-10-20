@@ -11,10 +11,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Ladicle/tcardgen/pkg/canvas"
-	"github.com/Ladicle/tcardgen/pkg/canvas/fontfamily"
-	"github.com/Ladicle/tcardgen/pkg/config"
-	"github.com/Ladicle/tcardgen/pkg/hugo"
+	"github.com/zoncoen/tcardgen/pkg/canvas"
+	"github.com/zoncoen/tcardgen/pkg/canvas/fontfamily"
+	"github.com/zoncoen/tcardgen/pkg/config"
+	"github.com/zoncoen/tcardgen/pkg/hugo"
 )
 
 const (
@@ -133,7 +133,7 @@ func (o *RootCommandOption) Run(streams IOStreams) error {
 	}
 
 	if _, err := os.Stat(outDir); os.IsNotExist(err) {
-		err := os.Mkdir(outDir, 0755)
+		err := os.Mkdir(outDir, 0o755)
 		if err != nil {
 			return err
 		}
