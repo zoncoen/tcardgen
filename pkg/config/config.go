@@ -19,20 +19,26 @@ type TextOption struct {
 	FontSize   float64          `json:"fontSize,omitempty"`
 	FontStyle  fontfamily.Style `json:"fontStyle,omitempty"`
 	Separator  string           `json:"separator,omitempty"`
+	TimeFormat string           `json:"timeFormat,omitempty"`
+	Enabled    *bool            `json:"enabled,omitempty"`
 }
 
 type MultiLineTextOption struct {
 	TextOption
-	MaxWidth    int  `json:"maxWidth,omitempty"`
-	LineSpacing *int `json:"lineSpacing,omitempty"`
+	MaxWidth    int   `json:"maxWidth,omitempty"`
+	LineSpacing *int  `json:"lineSpacing,omitempty"`
+	Enabled     *bool `json:"enabled,omitempty"`
 }
 
 type BoxTextsOption struct {
 	TextOption
-	BgHexColor string    `json:"bgHexColor,omitempty"`
-	BoxPadding *Padding  `json:"boxPadding,omitempty"`
-	BoxSpacing *int      `json:"boxSpacing,omitempty"`
-	BoxAlign   box.Align `json:"boxAlign,omitempty"`
+	BgHexColor       string    `json:"bgHexColor,omitempty"`
+	BoxPadding       *Padding  `json:"boxPadding,omitempty"`
+	BoxSpacing       *int      `json:"boxSpacing,omitempty"`
+	BoxAlign         box.Align `json:"boxAlign,omitempty"`
+	Enabled          *bool     `json:"enabled,omitempty"`
+	Limit            int       `json:"limit,omitempty"`
+	TitleCaseEnabled *bool     `json:"titleCaseEnabled,omitempty"`
 }
 
 type Point struct {

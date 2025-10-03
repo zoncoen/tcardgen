@@ -12,10 +12,6 @@ This is a forked repository from [Ladicle/tcardgen](https://github.com/Ladicle/t
 
 This tool requires `budoux` command.
 
-```bash
-npm install -g budoux
-```
-
 ### Diff
 
 |Original|My Version|
